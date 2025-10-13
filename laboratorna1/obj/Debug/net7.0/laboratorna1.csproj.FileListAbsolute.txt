@@ -1,0 +1,15 @@
+C:\UzhNU\laboratorna1\laboratorna1\bin\Debug\net7.0\laboratorna1.exe
+C:\UzhNU\laboratorna1\laboratorna1\bin\Debug\net7.0\laboratorna1.deps.json
+C:\UzhNU\laboratorna1\laboratorna1\bin\Debug\net7.0\laboratorna1.runtimeconfig.json
+C:\UzhNU\laboratorna1\laboratorna1\bin\Debug\net7.0\laboratorna1.dll
+C:\UzhNU\laboratorna1\laboratorna1\bin\Debug\net7.0\laboratorna1.pdb
+C:\UzhNU\laboratorna1\laboratorna1\obj\Debug\net7.0\laboratorna1.csproj.AssemblyReference.cache
+C:\UzhNU\laboratorna1\laboratorna1\obj\Debug\net7.0\laboratorna1.GeneratedMSBuildEditorConfig.editorconfig
+C:\UzhNU\laboratorna1\laboratorna1\obj\Debug\net7.0\laboratorna1.AssemblyInfoInputs.cache
+C:\UzhNU\laboratorna1\laboratorna1\obj\Debug\net7.0\laboratorna1.AssemblyInfo.cs
+C:\UzhNU\laboratorna1\laboratorna1\obj\Debug\net7.0\laboratorna1.csproj.CoreCompileInputs.cache
+C:\UzhNU\laboratorna1\laboratorna1\obj\Debug\net7.0\laboratorna1.dll
+C:\UzhNU\laboratorna1\laboratorna1\obj\Debug\net7.0\refint\laboratorna1.dll
+C:\UzhNU\laboratorna1\laboratorna1\obj\Debug\net7.0\laboratorna1.pdb
+C:\UzhNU\laboratorna1\laboratorna1\obj\Debug\net7.0\laboratorna1.genruntimeconfig.cache
+C:\UzhNU\laboratorna1\laboratorna1\obj\Debug\net7.0\ref\laboratorna1.dll
