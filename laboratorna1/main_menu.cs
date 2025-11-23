@@ -165,8 +165,7 @@ class Program
             Console.WriteLine("2. Додати товар");
             Console.WriteLine("3. Статистика");
             Console.WriteLine("4. Пошук товару");
-            Console.WriteLine("5. Створити бронювання");
-            Console.WriteLine("6. Зберегти у файл");
+            Console.WriteLine("5. Зберегти у файл");
             Console.WriteLine("0. Вийти в головне меню");
             Console.Write("Ваш вибір: ");
 
@@ -191,10 +190,6 @@ class Program
                     break;
 
                 case "5":
-                    Admin_Booking();
-                    break;
-
-                case "6":
                     DataManager.SaveProducts(products);
                     Console.WriteLine("Збережено.");
                     Console.ReadKey();
@@ -323,63 +318,7 @@ class Program
         Console.ReadKey();
     }
 
-    static void Admin_Booking()
-    {
-        Console.Clear();
-        Console.WriteLine("=== Б Р О Н Ю В А Н Н Я ===");
-        Console.WriteLine("Введіть 0 щоб скасувати.");
-
-        if (products.Count == 0)
-        {
-            Console.WriteLine("Немає товарів.");
-            Console.ReadKey();
-            return;
-        }
-
-        Console.Write("Ім'я клієнта: ");
-        string name = Console.ReadLine();
-        if (name == "0") return;
-
-        int cid = clients.Count + 1;
-        clients.Add(new Client(cid, name, "", "", DateTime.Now, false));
-
-        Admin_ShowProducts();
-
-        int pid;
-        while (true)
-        {
-            Console.Write("ID товару: ");
-            string s = Console.ReadLine();
-            if (s == "0") return;
-
-            if (int.TryParse(s, out pid) && products.Any(x => x.Id == pid))
-                break;
-
-            Console.WriteLine("Помилка.");
-        }
-
-        int days;
-        while (true)
-        {
-            Console.Write("Днів оренди: ");
-            string s = Console.ReadLine();
-            if (s == "0") return;
-
-            if (int.TryParse(s, out days) && days > 0)
-                break;
-
-            Console.WriteLine("Помилка.");
-        }
-
-        var prod = products.First(p => p.Id == pid);
-        double total = prod.PricePerDay * days;
-
-        int bid = bookings.Count + 1;
-        bookings.Add(new Booking(bid, cid, pid, days, total, DateTime.Now));
-
-        Console.WriteLine("\nБронювання створено!");
-        Console.ReadKey();
-    }
+   
 
 
     // ====================== ПРИХОВАНИЙ ВВІД ПАРОЛЯ ======================
