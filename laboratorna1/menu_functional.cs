@@ -325,17 +325,24 @@ namespace RentalService
             string q = Console.ReadLine();
             if (q == "0") return;
 
+            bool foundAny = false;
+            Console.WriteLine("\nЗнайдені товари:\n");
+
             foreach (var p in products)
             {
                 if (p.Name.ToLower().Contains(q.ToLower()))
                 {
-                    Console.WriteLine("Знайдено: " + p);
-                    Console.ReadKey();
-                    return;
+                    Console.WriteLine(p);
+                    foundAny = true;
                 }
             }
 
-            Console.WriteLine("\nНічого не знайдено.");
+            if (!foundAny)
+            {
+                Console.WriteLine("Нічого не знайдено.");
+            }
+
+            Console.WriteLine("\nНатисніть будь-яку клавішу...");
             Console.ReadKey();
         }
 
