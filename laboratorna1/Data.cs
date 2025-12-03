@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace RentalService
 {
-    // ===== С Т Р У К Т У Р И =====
+    // ===== РЎ Рў Р  РЈ Рљ Рў РЈ Р  Р =====
 
     public struct Product
     {
@@ -29,7 +29,7 @@ namespace RentalService
 
         public override string ToString()
         {
-            return $"{Id}. {Name} — {PricePerDay} грн/доба — в наявності: {AvailableCount} — {(IsActive ? "активний" : "неактивний")} — додано: {Added:yyyy-MM-dd}";
+            return $"{Id}. {Name} вЂ” {PricePerDay} РіСЂРЅ/РґРѕР±Р° вЂ” РІ РЅР°СЏРІРЅРѕСЃС‚С–: {AvailableCount} вЂ” {(IsActive ? "Р°РєС‚РёРІРЅРёР№" : "РЅРµР°РєС‚РёРІРЅРёР№")} вЂ” РґРѕРґР°РЅРѕ: {Added:yyyy-MM-dd}";
         }
 
         public string ToCsv()
@@ -92,7 +92,7 @@ namespace RentalService
         }
     }
 
-    // Д А Н І
+    // Р” Рђ Рќ Р†
 
     public static class DataManager
     {

@@ -3,14 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using RentalService;
 
+
+
 class Program
 {
+
+
     static List<Product> products = new List<Product>();
     static List<Client> clients = new List<Client>();
     static List<Booking> bookings = new List<Booking>();
 
     static void Main()
     {
+
         Console.OutputEncoding = System.Text.Encoding.UTF8;
 
         products = DataManager.LoadProducts();
@@ -33,32 +38,38 @@ class Program
             Console.WriteLine("2. Розрахунок покупки");
             Console.WriteLine("3. Інформація про магазин");
             Console.WriteLine("4. Налаштування");
-            Console.WriteLine("5. Добавити свій товар");
+            Console.WriteLine("5. Пошук товару");
+            Console.WriteLine("6. Добавити свій товар");
             Console.WriteLine("0. Вихід");
-            Console.Write("Ваш вибір: ");
+            Console.Write("\nВаш вибір: ");
 
             string input = Console.ReadLine();
 
             switch (input)
             {
                 case "1":
-                    ShowProductsPage();
+                    PurchaseModule.ShowProductsPage(products);
                     break;
 
                 case "2":
-                    PurchaseCalc();
+                    PurchaseModule.Run(products);
                     break;
 
                 case "3":
-                    ShopInfo();
+                    PurchaseModule.ShopInfo(products);
                     break;
 
                 case "4":
-                    SettingsPage();
+                    SettingsPage(products);
                     break;
 
                 case "5":
-                    AdminLoginMenu();
+                    PurchaseModule.Admin_Search(products);
+                    break;
+
+                case "6":
+                    PurchaseModule.AdminLoginMenu(products, AdminMenu);
+
                     break;
 
                 case "0":
@@ -73,82 +84,7 @@ class Program
         }
     }
 
-    // ====================== ОСНОВНІ СТОРІНКИ ======================
 
-    static void ShowProductsPage()
-    {
-        Console.Clear();
-        Console.WriteLine("=== Т О В А Р И ===");
-
-        if (products.Count == 0)
-            Console.WriteLine("Порожньо.");
-        else
-            foreach (var p in products)
-                Console.WriteLine(p);
-
-        Console.WriteLine("\nНатисніть будь-яку кнопку для повернення в меню…");
-        Console.ReadKey();
-    }
-
-    static void PurchaseCalc()
-    {
-        Console.Clear();
-        Console.WriteLine("=== Р О З Р А Х У Н О К   П О К У П К И ===");
-        Console.WriteLine("Функція ще не реалізована.");
-        Console.WriteLine("\nНатисніть будь-яку кнопку…");
-        Console.ReadKey();
-    }
-
-    static void ShopInfo()
-    {
-        Console.Clear();
-        Console.WriteLine("=== І Н Ф О Р М А Ц І Я ===");
-        Console.WriteLine("Сервіс прокату авто, кращі ціни, найкращі машини.");
-        Console.WriteLine("\nНатисніть будь-яку кнопку…");
-        Console.ReadKey();
-    }
-
-    static void SettingsPage()
-    {
-        Console.Clear();
-        Console.WriteLine("=== Н А Л А Ш Т У В А Н Н Я ===");
-        Console.WriteLine("Функція поки що порожня.");
-        Console.WriteLine("\nНатисніть будь-яку кнопку…");
-        Console.ReadKey();
-    }
-
-    // ====================== АДМІНСЬКИЙ ВХІД ======================
-
-    static void AdminLoginMenu()
-    {
-        Console.Clear();
-        Console.WriteLine("=== В Х І Д  А Д М І Н А ===");
-
-        string login = "admin";
-        string pass = "1234";
-        int attempts = 0;
-
-        while (attempts < 3)
-        {
-            Console.Write("\nЛогін: ");
-            string l = Console.ReadLine();
-
-            Console.Write("Пароль: ");
-            string p = ReadPassword();
-
-            if (l == login && p == pass)
-            {
-                AdminMenu();
-                return;
-            }
-
-            attempts++;
-            Console.WriteLine($"\nНевірні дані. Спроба {attempts}/3");
-        }
-
-        Console.WriteLine("\nСпроби закінчилися. Повернення в головне меню…");
-        Console.ReadKey();
-    }
 
     // ====================== АДМІНСЬКЕ МЕНЮ ======================
 
@@ -166,33 +102,38 @@ class Program
             Console.WriteLine("3. Статистика");
             Console.WriteLine("4. Пошук товару");
             Console.WriteLine("5. Зберегти у файл");
+            Console.WriteLine("6. Видалити товар");
             Console.WriteLine("0. Вийти в головне меню");
-            Console.Write("Ваш вибір: ");
+            Console.Write("\nВаш вибір: ");
 
             string choice = Console.ReadLine();
 
             switch (choice)
             {
                 case "1":
-                    Admin_ShowProducts();
+                    PurchaseModule.ShowProductsPage(products);
                     break;
 
                 case "2":
-                    Admin_AddProduct();
+                    PurchaseModule.Admin_AddProduct(products);
                     break;
 
                 case "3":
-                    Admin_Stats();
+                    PurchaseModule.Admin_Stats(products);
                     break;
 
                 case "4":
-                    Admin_Search();
+                    PurchaseModule.Admin_Search(products);
                     break;
 
                 case "5":
                     DataManager.SaveProducts(products);
                     Console.WriteLine("Збережено.");
                     Console.ReadKey();
+                    break;
+
+                case "6":
+                    PurchaseModule.Admin_DeleteProduct(products);
                     break;
 
                 case "0":
@@ -209,135 +150,64 @@ class Program
 
     // ====================== АДМІНСЬКІ ФУНКЦІЇ ======================
 
-    static void Admin_ShowProducts()
+
+
+
+
+
+    public static void SettingsPage(List<Product> products)
     {
         Console.Clear();
-        Console.WriteLine("=== Т О В А Р И ===");
+        Console.WriteLine("=== Н А Л А Ш Т У В А Н Н Я ===");
+        Console.WriteLine("\n1. Сортування");
+        Console.WriteLine("0. Вихід");
+        Console.Write("\nВаш вибір: ");
 
-        if (products.Count == 0)
-            Console.WriteLine("Порожньо.");
-        else
-            foreach (var p in products)
-                Console.WriteLine(p);
-
-        Console.WriteLine("\nНатисніть будь-яку кнопку…");
-        Console.ReadKey();
-    }
-
-    static void Admin_AddProduct()
-    {
-        Console.Clear();
-        Console.WriteLine("=== Д О Д А Т И   Т О В А Р ===");
-        Console.WriteLine("Введіть 0 щоб скасувати.");
-
-        int id = products.Count > 0 ? products.Max(x => x.Id) + 1 : 1;
-
-        Console.Write("Назва: ");
-        string name = Console.ReadLine();
-        if (name == "0") return;
-
-        double price;
-        while (true)
+        string choice2 = Console.ReadLine();
+        switch (choice2)
         {
-            Console.Write("Ціна: ");
-            string s = Console.ReadLine();
-            if (s == "0") return;
-
-            if (double.TryParse(s, out price))
+            case "1":
+                SortMenu();
                 break;
 
-            Console.WriteLine("Помилка.");
-        }
-
-        int count;
-        while (true)
-        {
-            Console.Write("Кількість: ");
-            string s = Console.ReadLine();
-            if (s == "0") return;
-
-            if (int.TryParse(s, out count))
+            case "0":
                 break;
 
-            Console.WriteLine("Помилка.");
-        }
-
-        products.Add(new Product(id, name, price, count, true, DateTime.Now));
-
-        Console.WriteLine("\nТовар додано.");
-        Console.ReadKey();
-    }
-
-    static void Admin_Stats()
-    {
-        Console.Clear();
-        Console.WriteLine("=== С Т А Т И С Т И К А ===");
-
-        if (products.Count == 0)
-        {
-            Console.WriteLine("Порожньо.");
-            Console.ReadKey();
-            return;
-        }
-
-        double total = products.Sum(p => p.PricePerDay * p.AvailableCount);
-        double avg = products.Average(p => p.PricePerDay);
-        double min = products.Min(p => p.PricePerDay);
-        double max = products.Max(p => p.PricePerDay);
-
-        Console.WriteLine($"Загальна вартість: {total}");
-        Console.WriteLine($"Середня ціна: {avg}");
-        Console.WriteLine($"Мінімальна: {min}");
-        Console.WriteLine($"Максимальна: {max}");
-
-        Console.WriteLine("\nНатисніть будь-яку кнопку…");
-        Console.ReadKey();
-    }
-
-    static void Admin_Search()
-    {
-        Console.Clear();
-        Console.WriteLine("=== П О Ш У К ===");
-        Console.WriteLine("Введіть 0 для відміни.");
-        Console.Write("Пошук: ");
-
-        string q = Console.ReadLine();
-        if (q == "0") return;
-
-        foreach (var p in products)
-        {
-            if (p.Name.ToLower().Contains(q.ToLower()))
-            {
-                Console.WriteLine("Знайдено: " + p);
-                Console.ReadKey();
+            default:
+                Console.WriteLine("Невірний вибір.");
                 return;
-            }
         }
-
-        Console.WriteLine("\nНічого не знайдено.");
-        Console.ReadKey();
     }
 
-   
-
-
-    // ====================== ПРИХОВАНИЙ ВВІД ПАРОЛЯ ======================
-
-    static string ReadPassword()
+    public static void SortMenu()
     {
-        string pass = "";
-        ConsoleKeyInfo k;
+        byte i = 0;
+        Console.Clear();
+        Console.WriteLine("=== С О Р Т У В А Н Н Я ===\n");
+        Console.WriteLine("1. За назвою (A → Я)");
+        Console.WriteLine("2. За ціною (зростання)");
+        Console.WriteLine("3. За датою додавання (старі → нові)");
+        Console.WriteLine("4. За ID");
+        Console.WriteLine("0. Назад");
 
-        while ((k = Console.ReadKey(true)).Key != ConsoleKey.Enter)
+        Console.Write("\nВаш вибір: ");
+        string s = Console.ReadLine();
+
+        switch (s)
         {
-            if (!char.IsControl(k.KeyChar))
-            {
-                pass += k.KeyChar;
-                Console.Write("*");
-            }
+            case "1": PurchaseModule.SortProductsByName(products); break;
+            case "2": PurchaseModule.SortProductsByPrice(products); break;
+            case "3": PurchaseModule.SortProductsByDate(products); break;
+            case "4": PurchaseModule.SortProductsById(products); break;
+            case "0": i = 1; break;
+            default: Console.WriteLine("Невірний вибір."); return;
         }
-
-        Console.WriteLine();
-        return pass;
+        if (i == 1)
+        { SettingsPage(products); }
+        else
+        {
+            Console.WriteLine("\nГотово! Натисніть будь-що…");
+            Console.ReadKey();
+        }
     }
 }
