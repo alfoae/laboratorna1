@@ -7,11 +7,9 @@ using RentalService;
 
 class Program
 {
-
-
+    public static bool IsLoggedIn = false;
+    public static bool IsAdmin = false;
     static List<Product> products = new List<Product>();
-    static List<Client> clients = new List<Client>();
-    static List<Booking> bookings = new List<Booking>();
 
     static void Main()
     {
@@ -27,6 +25,33 @@ class Program
 
     static void MainMenu()
     {
+
+        while (!Program.IsLoggedIn)
+        {
+            Console.Clear();
+            Console.WriteLine("=== В І Т А Ю ===\n");
+            Console.WriteLine("1 — Увійти");
+            Console.WriteLine("2 — Створити акаунт");
+            Console.WriteLine("0 — Вихід\n");
+            Console.Write("Ваш вибір: ");
+
+            string c = Console.ReadLine();
+
+            if (c == "1")
+            {
+                PurchaseModule.Login();
+            }
+            else if (c == "2")
+            {
+                PurchaseModule.Register();
+            }
+            else if (c == "0")
+            {
+                Environment.Exit(0);
+            }
+        }
+
+
         bool exit = false;
 
         while (!exit)
@@ -39,7 +64,7 @@ class Program
             Console.WriteLine("3. Інформація про магазин");
             Console.WriteLine("4. Налаштування");
             Console.WriteLine("5. Пошук товару");
-            Console.WriteLine("6. Добавити свій товар");
+            Console.WriteLine("6. админ меню");
             Console.WriteLine("0. Вихід");
             Console.Write("\nВаш вибір: ");
 
@@ -56,11 +81,11 @@ class Program
                     break;
 
                 case "3":
-                    PurchaseModule.ShopInfo(products);
+                    PurchaseModule.ShopInfo();
                     break;
 
                 case "4":
-                    SettingsPage(products);
+                    SettingsPage();
                     break;
 
                 case "5":
@@ -68,10 +93,20 @@ class Program
                     break;
 
                 case "6":
-                    PurchaseModule.AdminLoginMenu(products, AdminMenu);
+                    {
+                        if (!Program.IsAdmin)
+                        {
+                            Console.WriteLine("У вас немає дозволу для входу в адмін-меню.");
+                            Console.ReadKey();
+                        }
+                        else
+                        {
+                            AdminMenu();
+                        }
+                        
 
-                    break;
-
+                        break;
+                    }
                 case "0":
                     exit = true;
                     break;
@@ -103,6 +138,7 @@ class Program
             Console.WriteLine("4. Пошук товару");
             Console.WriteLine("5. Зберегти у файл");
             Console.WriteLine("6. Видалити товар");
+            Console.WriteLine("7. редагувати товар");
             Console.WriteLine("0. Вийти в головне меню");
             Console.Write("\nВаш вибір: ");
 
@@ -136,6 +172,10 @@ class Program
                     PurchaseModule.Admin_DeleteProduct(products);
                     break;
 
+                case "7":
+                    PurchaseModule.Admin_EditProduct(products);
+                    break;
+
                 case "0":
                     exit = true;
                     break;
@@ -148,14 +188,7 @@ class Program
         }
     }
 
-    // ====================== АДМІНСЬКІ ФУНКЦІЇ ======================
-
-
-
-
-
-
-    public static void SettingsPage(List<Product> products)
+    public static void SettingsPage()
     {
         Console.Clear();
         Console.WriteLine("=== Н А Л А Ш Т У В А Н Н Я ===");
@@ -181,7 +214,7 @@ class Program
 
     public static void SortMenu()
     {
-        byte i = 0;
+        bool i = false;
         Console.Clear();
         Console.WriteLine("=== С О Р Т У В А Н Н Я ===\n");
         Console.WriteLine("1. За назвою (A → Я)");
@@ -195,15 +228,16 @@ class Program
 
         switch (s)
         {
+            
             case "1": PurchaseModule.SortProductsByName(products); break;
             case "2": PurchaseModule.SortProductsByPrice(products); break;
             case "3": PurchaseModule.SortProductsByDate(products); break;
             case "4": PurchaseModule.SortProductsById(products); break;
-            case "0": i = 1; break;
+            case "0": i = true; break;
             default: Console.WriteLine("Невірний вибір."); return;
         }
-        if (i == 1)
-        { SettingsPage(products); }
+        if (i == true)
+        { SettingsPage(); }
         else
         {
             Console.WriteLine("\nГотово! Натисніть будь-що…");

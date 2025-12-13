@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using RentalService;
+using static RentalService.DataManager;
 
 namespace RentalService
 {
     public static class PurchaseModule
     {
+
         public static void Run(List<Product> products)
         {
             Console.Clear();
             Console.WriteLine("=== Р О З Р А Х У Н О К   П О К У П К И ===\n");
 
-            //Авто-очистка товарів з 0 кількістю
             for (int i = products.Count - 1; i >= 0; i--)
             {
                 if (products[i].AvailableCount <= 0)
@@ -73,14 +74,12 @@ namespace RentalService
                 }
             }
 
-            // Підтвердження
             Console.Clear();
             Console.WriteLine("1 — продовжити\n0 — назад");
 
             string confirm = Console.ReadLine();
             if (confirm == "0") return;
 
-            // Обчислення
             double total = 0;
 
             Console.Clear();
@@ -102,13 +101,15 @@ namespace RentalService
             double final = total - (total * k / 100);
             final = Math.Round(final, 2);
 
+            double result = Math.Sqrt(final);
+
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine($"\nСума: {total}");
             Console.WriteLine($"Знижка: {k}%");
             Console.WriteLine($"Разом: {final}");
+            Console.WriteLine($"Корінь: {result}");
             Console.ResetColor();
 
-            // Списання
             for (int i = 0; i < products.Count; i++)
             {
                 foreach (var c in cart)
@@ -122,7 +123,6 @@ namespace RentalService
                 }
             }
 
-            // Видалення товарів з 0
             for (int i = products.Count - 1; i >= 0; i--)
             {
                 if (products[i].AvailableCount <= 0)
@@ -144,8 +144,6 @@ namespace RentalService
             Console.ResetColor();
             Console.ReadKey();
         }
-
-        //==========ПОКАЗАТИ ВСІ ТОВАРИ==========
 
         public static void ShowProductsPage(List<Product> products)
         {
@@ -202,45 +200,12 @@ namespace RentalService
             Console.ReadKey();
         }
 
-        public static void ShopInfo(List<Product> products)
+        public static void ShopInfo()
         {
             Console.Clear();
             Console.WriteLine("=== І Н Ф О Р М А Ц І Я ===");
             Console.WriteLine("Сервіс прокату авто, кращі ціни, найкращі машини.");
             Console.WriteLine("\nНатисніть будь-яку кнопку…");
-            Console.ReadKey();
-        }
-
-        // ====================== АДМІНСЬКИЙ ВХІД ======================
-
-        public static void AdminLoginMenu(List<Product> products, Action adminMenuCallback)
-        {
-            Console.Clear();
-            Console.WriteLine("=== В Х І Д  А Д М І Н А ===");
-
-            string login = "admin";
-            string pass = "1234";
-            int attempts = 0;
-
-            while (attempts < 3)
-            {
-                Console.Write("\nЛогін: ");
-                string l = Console.ReadLine();
-
-                Console.Write("Пароль: ");
-                string p = ReadPassword(products);
-
-                if (l == login && p == pass)
-                {
-                    adminMenuCallback();
-                    return;
-                }
-
-                attempts++;
-                Console.WriteLine($"\nНевірні дані. Спроба {attempts}/3");
-            }
-
-            Console.WriteLine("\nСпроби закінчилися. Повернення в головне меню…");
             Console.ReadKey();
         }
 
@@ -250,7 +215,8 @@ namespace RentalService
             Console.WriteLine("=== Д О Д А Т И   Т О В А Р ===");
             Console.WriteLine("Введіть 0 щоб скасувати.");
 
-            int id = products.Count > 0 ? products.Max(x => x.Id) + 1 : 1;
+            int id = DataManager.GetNextProductId();
+
 
             Console.Write("Назва: ");
             string name = Console.ReadLine();
@@ -282,7 +248,10 @@ namespace RentalService
                 Console.WriteLine("Помилка.");
             }
 
-            products.Add(new Product(id, name, price, count, true, DateTime.Now));
+            var newProduct = new Product(id, name, price, count, true, DateTime.Now);
+
+            products.Add(newProduct);
+            DataManager.AppendProduct(newProduct);
 
             Console.WriteLine("\nТовар додано.");
             Console.ReadKey();
@@ -325,26 +294,57 @@ namespace RentalService
             string q = Console.ReadLine();
             if (q == "0") return;
 
-            bool foundAny = false;
+            var found = products
+                .Where(p => p.Name.Contains(q, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            if (found.Count == 0)
+            {
+                Console.WriteLine("\nНічого не знайдено.");
+                Console.ReadKey();
+                return;
+            }
+
+            int wName = 10, wPrice = 12, wCnt = 10, wId = 5, wDate = 12;
+
+            foreach (var p in found)
+            {
+                wName = Math.Max(wName, p.Name.Length + 2);
+                wPrice = Math.Max(wPrice, (p.PricePerDay + " грн").Length + 2);
+                wCnt = Math.Max(wCnt, p.AvailableCount.ToString().Length + 2);
+                wId = Math.Max(wId, p.Id.ToString().Length + 2);
+            }
+
+            void line()
+            {
+                Console.WriteLine(new string('-', wName + wPrice + wCnt + wId + wDate + 6));
+            }
+
             Console.WriteLine("\nЗнайдені товари:\n");
+            line();
+            Console.WriteLine(
+                $"|{"Назва".PadRight(wName)}" +
+                $"|{"Ціна/доба".PadRight(wPrice)}" +
+                $"|{"Кількість".PadRight(wCnt)}" +
+                $"|{"ID".PadRight(wId)}" +
+                $"|{"Дата".PadRight(wDate)}|"
+            );
+            line();
 
-            foreach (var p in products)
+            foreach (var p in found)
             {
-                if (p.Name.ToLower().Contains(q.ToLower()))
-                {
-                    Console.WriteLine(p);
-                    foundAny = true;
-                }
+                Console.WriteLine(
+                    $"|{p.Name.PadRight(wName)}" +
+                    $"|{(p.PricePerDay + " грн").PadRight(wPrice)}" +
+                    $"|{p.AvailableCount.ToString().PadRight(wCnt)}" +
+                    $"|{p.Id.ToString().PadRight(wId)}" +
+                    $"|{p.Added:yyyy-MM-dd}".PadRight(wDate) + "|"
+                );
             }
 
-            if (!foundAny)
-            {
-                Console.WriteLine("Нічого не знайдено.");
-            }
-
-            Console.WriteLine("\nНатисніть будь-яку клавішу...");
+            line();
             Console.ReadKey();
-        }
+        }           
 
 
 
@@ -382,8 +382,13 @@ namespace RentalService
 
             products.RemoveAt(idx);
 
+            DataManager.SaveProducts(products);
+
+
             Console.WriteLine("Видалено.");
             Console.ReadKey();
+
+
         }
 
 
@@ -391,7 +396,7 @@ namespace RentalService
 
         // ====================== ПРИХОВАНИЙ ВВІД ПАРОЛЯ ======================
 
-        public static string ReadPassword(List<Product> products)
+        public static string ReadPassword()
         {
             string pass = "";
             ConsoleKeyInfo k;
@@ -473,5 +478,243 @@ namespace RentalService
                 }
             }
         }
+
+        public static void Admin_EditProduct(List<Product> products)
+        {
+            Console.Clear();
+            Console.WriteLine("=== Р Е Д А Г У В А Н Н Я   Т О В А Р У ===\n");
+
+            if (products.Count == 0)
+            {
+                Console.WriteLine("Порожньо.");
+                Console.ReadKey();
+                return;
+            }
+
+            for (int i = 0; i < products.Count; i++)
+                Console.WriteLine($"{products[i].Id}. {products[i].Name}");
+
+            Console.Write("\nВведіть ID товару: ");
+
+            if (!int.TryParse(Console.ReadLine(), out int id))
+                return;
+
+            var p = products.FirstOrDefault(x => x.Id == id);
+            if (p.Id == 0)
+            {
+                Console.WriteLine("Товар не знайдено.");
+                Console.ReadKey();
+                return;
+            }
+
+            Console.Clear();
+            Console.WriteLine("=== Р Е Д А Г У В А Н Н Я ===\n");
+
+            // --- РЕДАГУВАННЯ НАЗВИ ---
+            Console.WriteLine($"Поточна назва: {p.Name}");
+            Console.Write("Нова назва (0 — залишити): ");
+            string newName = Console.ReadLine();
+            if (newName != "0" && !string.IsNullOrWhiteSpace(newName))
+                p.Name = newName;
+
+
+            // --- РЕДАГУВАННЯ ЦІНИ ---
+            Console.WriteLine($"\nПоточна ціна: {p.PricePerDay}");
+            Console.Write("Нова ціна (0 — залишити): ");
+            string priceInput = Console.ReadLine();
+
+            if (priceInput != "0")
+            {
+                if (double.TryParse(priceInput, out double newPrice) && newPrice >= 0)
+                    p.PricePerDay = newPrice;
+                else
+                    Console.WriteLine("❗ Невірна ціна — залишено як було.");
+            }
+
+
+            // --- РЕДАГУВАННЯ КІЛЬКОСТІ ---
+            Console.WriteLine($"\nПоточна кількість: {p.AvailableCount}");
+            Console.Write("Нова кількість (0 — залишити): ");
+            string countInput = Console.ReadLine();
+
+            if (countInput != "0")
+            {
+                if (int.TryParse(countInput, out int newCount) && newCount >= 0)
+                    p.AvailableCount = newCount;
+                else
+                    Console.WriteLine("❗ Невірна кількість — залишено як було.");
+            }
+
+
+            for (int i = 0; i < products.Count; i++)
+                if (products[i].Id == p.Id)
+                {
+                    products[i] = p;
+                    break;
+                }
+
+            // ЗБЕРЕЖЕННЯ У CSV
+            SaveProducts(products);
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("\nТовар успішно оновлено!");
+            Console.ResetColor();
+
+            Console.ReadKey();
+        }
+
+        public static void Register()
+        {
+            Console.Clear();
+            Console.WriteLine("=== С Т В О Р Е Н Н Я   А К А У Н Т У ===\n");
+
+            var users = DataManager.LoadUsers();
+
+            // Заборонені символи
+            string forbidden = " !#$%^&*()+=[]{}|;:'\",<>/?`~\\";
+
+            // EMAIL
+            string email;
+            while (true)
+            {
+                Console.Write("Email (приклад: google@gmail.com): ");
+                email = Console.ReadLine();
+
+                if (!email.Contains('@') || !email.Contains('.'))
+                {
+                    Console.WriteLine("Невірний формат email.");
+                    continue;
+                }
+
+                if (users.Any(u => u.Email == email))
+                {
+                    Console.WriteLine("Такий email вже існує.");
+                    continue;
+                }
+
+                if (email.Any(ch => forbidden.Contains(ch)))
+                {
+                    Console.WriteLine($"Не можна використовувати такі символи: {forbidden}");
+                    continue;
+                }
+
+                break;
+            }
+
+            // LOGIN
+            string login;
+            while (true)
+            {
+                Console.Write("Логін (мін 4 символи): ");
+                login = Console.ReadLine();
+
+                if (login.Length < 4)
+                {
+                    Console.WriteLine("Закороткий.");
+                    continue;
+                }
+
+                if (login.Any(ch => forbidden.Contains(ch)))
+                {
+                    Console.WriteLine($"Не можна використовувати такі символи: {forbidden}");
+                    continue;
+                }
+
+                if (users.Any(u => u.Login == login))
+                {
+                    Console.WriteLine("Такий логін вже існує.");
+                    continue;
+                }
+
+                break;
+            }
+
+            // PASSWORD
+            string pass;
+            while (true)
+            {
+                Console.Write("Пароль (мін 4 символи): ");
+                pass = Console.ReadLine();
+
+                if (pass.Length < 4)
+                {
+                    Console.WriteLine("Закороткий.");
+                    continue;
+                }
+
+                if (pass.Any(ch => forbidden.Contains(ch)))
+                {
+                    Console.WriteLine($"Не можна використовувати такі символи: {forbidden}");
+                    continue;
+                }
+
+                break;
+            }
+
+            int id = DataManager.GetNextUserId();
+            string hash = Hash(pass);
+
+            User u = new User(id, email, login, hash, DateTime.Now);
+            DataManager.AppendUser(u);
+
+            Console.WriteLine("\nАкаунт створено!");
+            Console.ReadKey();
+        }
+
+        public static void Login()
+        {
+            Console.Clear();
+            Console.WriteLine("=== В Х І Д ===\n");
+
+            var users = DataManager.LoadUsers();
+
+            Console.Write("Email: ");
+            string email = Console.ReadLine();
+
+            var user = users.FirstOrDefault(u => u.Email == email);
+
+            if (user.Id == 0)
+            {
+                Console.WriteLine("Такого email немає.");
+                Console.ReadKey();
+                return;
+            }
+
+            Console.Write("Логін: ");
+            string login = Console.ReadLine();
+
+            if (user.Login != login)
+            {
+                Console.WriteLine("Невірний логін.");
+                Console.ReadKey();
+                return;
+            }
+
+            Console.Write("Пароль: ");
+            
+            string pass = ReadPassword();
+
+            if (user.PasswordHash != Hash(pass))
+            {
+                Console.WriteLine("Невірний пароль.");
+                Console.ReadKey();
+                return;
+            }
+
+            if (email == "admin@gmail.com" && login == "admin" && pass == "1234")
+            {
+                Program.IsLoggedIn = true;
+                Program.IsAdmin = true;
+                Console.WriteLine("\nВхід виконано. Ви увійшли як адміністратор.");
+                Console.ReadKey();
+                return;
+            }
+
+            Program.IsLoggedIn = true;
+            Program.IsAdmin = false;
+            Console.WriteLine("\nВхід виконано.");
+            Console.ReadKey();
+        }
+
     }
 }
