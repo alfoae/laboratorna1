@@ -225,14 +225,25 @@ namespace RentalService
             double price;
             while (true)
             {
-                Console.Write("Ціна: ");
+                Console.Write("Ціна (0 — вихід): ");
                 string s = Console.ReadLine();
-                if (s == "0") return;
 
-                if (double.TryParse(s, out price))
-                    break;
+                if (s == "0" || s == "-0")
+                    return;
 
-                Console.WriteLine("Помилка.");
+                if (!double.TryParse(s, out price))
+                {
+                    Console.WriteLine("Помилка. Введіть число.");
+                    continue;
+                }
+
+                if (price < 0)
+                {
+                    Console.WriteLine("Ціна не може бути від’ємною.");
+                    continue;
+                }
+
+                break;
             }
 
             int count;
@@ -571,30 +582,50 @@ namespace RentalService
             var users = DataManager.LoadUsers();
 
             // Заборонені символи
-            string forbidden = " !#$%^&*()+=[]{}|;:'\",<>/?`~\\";
+            string forbidden = " .@!#$%^&*()+=[]{}|;:'\",<>/?`~\\";
 
             // EMAIL
             string email;
             while (true)
             {
-                Console.Write("Email (приклад: google@gmail.com): ");
+                Console.Write("0 - вихід \n");
+                Console.Write("Email (тільки логін, без @gmail.com)\n");
                 email = Console.ReadLine();
 
-                if (!email.Contains('@') || !email.Contains('.'))
+                if (email == "0")
                 {
-                    Console.WriteLine("Невірний формат email.");
+                    Program.MainMenu();
+                }
+
+                if (string.IsNullOrWhiteSpace(email))
+                {
+                    Console.WriteLine("Email не може бути порожнім.");
                     continue;
                 }
 
-                if (users.Any(u => u.Email == email))
+                if (email.Length < 6)
                 {
-                    Console.WriteLine("Такий email вже існує.");
+                    Console.WriteLine("Email має містити мінімум 6 символів.");
+                    continue;
+                }
+
+                if (!char.IsLetter(email.First()) || !char.IsLetter(email.Last()))
+                {
+                    Console.WriteLine("Email має починатися і закінчуватися буквою.");
                     continue;
                 }
 
                 if (email.Any(ch => forbidden.Contains(ch)))
                 {
                     Console.WriteLine($"Не можна використовувати такі символи: {forbidden}");
+                    continue;
+                }
+
+                email = email + "@gmail.com";
+
+                if (users.Any(u => u.Email == email))
+                {
+                    Console.WriteLine("Такий email вже існує.");
                     continue;
                 }
 

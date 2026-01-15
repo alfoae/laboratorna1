@@ -23,7 +23,7 @@ class Program
 
     // ===================== ГОЛОВНЕ МЕНЮ =====================
 
-    static void MainMenu()
+    public static void MainMenu()
     {
 
         while (!Program.IsLoggedIn)
